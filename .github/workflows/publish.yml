@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Install deps
@@ -29,5 +29,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Show npm version
+        run: npm --version
+
       - name: Publish with provenance
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ""
