@@ -1,19 +1,6 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-function toQueryString(params: IDataObject): string {
-	const searchParams = new URLSearchParams();
-
-	for (const [key, value] of Object.entries(params)) {
-		if (value === undefined || value === null || value === '') {
-			continue;
-		}
-		searchParams.set(key, String(value));
-	}
-
-	return searchParams.toString();
-}
-
 export function normalizeAccountIds(raw: string): string {
 	return raw
 		.split(',')
@@ -29,31 +16,17 @@ export async function socialEchoApiRequest(
 ): Promise<IDataObject> {
 	const credentials = await this.getCredentials('socialEchoApi');
 	const baseUrl = String(credentials.baseUrl ?? 'https://api.socialecho.net').replace(/\/$/, '');
-	const apiKey = String(credentials.apiKey ?? '');
-	const lang = String(credentials.lang ?? 'zh_CN');
 	const teamId = String(credentials.teamId ?? '');
-
-	if (!apiKey) {
-		throw new NodeOperationError(this.getNode(), 'SocialEcho API Key is required in credentials.');
-	}
-
-	const qs = toQueryString(query);
-	const url = `${baseUrl}${path}${qs ? `?${qs}` : ''}`;
-
-	const headers: IDataObject = {
-		Authorization: `Bearer ${apiKey}`,
-		'X-Lang': lang,
-	};
-
-	if (teamId) {
-		headers['X-Team-Id'] = teamId;
-	}
+	const url = `${baseUrl}${path}`;
+	const headers: IDataObject = {};
+	if (teamId) headers['X-Team-Id'] = teamId;
 
 	try {
-		const response = (await this.helpers.httpRequest({
+		const response = (await this.helpers.httpRequestWithAuthentication.call(this, 'socialEchoApi', {
 			method: 'GET',
 			url,
-			headers,
+			qs: query,
+			headers: Object.keys(headers).length > 0 ? headers : undefined,
 			json: true,
 			returnFullResponse: true,
 			timeout: 60000,

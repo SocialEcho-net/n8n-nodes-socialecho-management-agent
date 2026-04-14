@@ -52,7 +52,24 @@ export class SocialEchoApi implements ICredentialType {
 			headers: {
 				Authorization: '=Bearer {{$credentials.apiKey}}',
 				'X-Lang': '={{$credentials.lang}}',
+				'X-Team-Id': '={{$credentials.teamId}}',
 			},
 		},
+	};
+
+	test = {
+		request: {
+			url: '={{$credentials.baseUrl}}/v1/team',
+			method: 'GET' as const,
+		},
+		rules: [
+			{
+				type: 'responseCode' as const,
+				properties: {
+					value: 200,
+					message: 'SocialEcho API returned a non-200 HTTP status.',
+				},
+			},
+		],
 	};
 }

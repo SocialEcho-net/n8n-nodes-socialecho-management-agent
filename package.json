@@ -1,9 +1,9 @@
 {
   "name": "n8n-nodes-socialecho-management-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for SocialEcho external APIs (team/account/article/report).",
   "license": "MIT",
-  "homepage": "https://github.com/SocialEcho-net/social-media-autopilot",
+  "homepage": "https://github.com/SocialEcho-net/n8n-nodes-socialecho-management-agent",
   "author": {
     "name": "SocialEcho Team",
     "email": "support@socialecho.net"
@@ -37,11 +37,9 @@
   "engines": {
     "node": ">=18.17"
   },
-  "dependencies": {
-    "n8n-workflow": "^1.93.0"
-  },
   "devDependencies": {
     "@types/node": "^22.15.3",
+    "n8n-workflow": "^1.93.0",
     "typescript": "^5.6.3"
   },
   "n8n": {
