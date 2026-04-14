@@ -53,3 +53,19 @@ npm install n8n-nodes-socialecho-management-agent
 ```
 
 Then restart n8n.
+
+## Verified pipeline (for n8n Creator Portal)
+
+This repository includes GitHub Actions workflow:
+
+- `.github/workflows/publish.yml`
+- Publishes with npm provenance: `npm publish --provenance --access public`
+
+Recommended release flow:
+
+1. Configure npm Trusted Publisher for this GitHub repository.
+2. Bump package version in `package.json`.
+3. Push to `main`.
+4. Create GitHub Release (or run workflow manually).
+5. Confirm new version appears on npm.
+6. Submit package URL in n8n Creator Portal for verification review.
