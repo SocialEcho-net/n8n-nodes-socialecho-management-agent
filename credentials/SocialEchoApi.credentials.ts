@@ -1,4 +1,9 @@
-import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import type {
+	IAuthenticateGeneric,
+	ICredentialTestRequest,
+	ICredentialType,
+	INodeProperties,
+} from 'n8n-workflow';
 
 export class SocialEchoApi implements ICredentialType {
 	name = 'socialEchoApi';
@@ -46,7 +51,7 @@ export class SocialEchoApi implements ICredentialType {
 		},
 	];
 
-	authenticate = {
+	authenticate: IAuthenticateGeneric = {
 		type: 'generic' as const,
 		properties: {
 			headers: {
@@ -57,19 +62,11 @@ export class SocialEchoApi implements ICredentialType {
 		},
 	};
 
-	test = {
+	test: ICredentialTestRequest = {
 		request: {
-			url: '={{$credentials.baseUrl}}/v1/team',
+			baseURL: '={{$credentials.baseUrl}}',
+			url: '/v1/team',
 			method: 'GET' as const,
 		},
-		rules: [
-			{
-				type: 'responseCode' as const,
-				properties: {
-					value: 200,
-					message: 'SocialEcho API returned a non-200 HTTP status.',
-				},
-			},
-		],
 	};
 }
