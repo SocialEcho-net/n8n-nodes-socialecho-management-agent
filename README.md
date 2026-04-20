@@ -4,15 +4,17 @@ n8n community node for SocialEcho external APIs.
 
 ## Included operations
 
-- `Get Team` -> `GET /v1/team`
-- `List Accounts` -> `GET /v1/account`
-- `List Articles` -> `GET /v1/article`
-- `Get Report` -> `GET /v1/report`
+- `Get Team` → `GET /v1/team` (JSON body: `{}`)
+- `List Accounts` → `GET /v1/account` (JSON body: `page`, `type`)
+- `List Articles` → `GET /v1/article` (JSON body: `page`, optional `account_ids` as integer array)
+- `Get Report` → `GET /v1/report` (JSON body: `start_date`, `end_date`, `time_type`, `group`, optional `account_ids`)
+
+This matches the exported OpenAPI contract (GET with `application/json` body, not query string).
 
 Success criteria in node runtime:
 
 - HTTP status must be `200`
-- Response JSON field `code` must be `200`
+- Response JSON field `code` must be `200` or `0`
 
 Otherwise the node throws an execution error.
 
@@ -20,16 +22,16 @@ Otherwise the node throws an execution error.
 
 Create credential type **SocialEcho API**:
 
-- `Base URL` (example: `https://api-dev.socialecho.net`)
+- `Base URL` (default: `https://api.socialecho.net`)
 - `API Key` (team API key from SocialEcho)
 - `Language` (`zh_CN` or `en`)
-- `Team ID` (optional)
+- `Team ID` (optional; sent as `X-Team-Id` only when non-empty)
 
 Headers sent by this node:
 
 - `Authorization: Bearer <API_KEY>`
 - `X-Lang: <lang>`
-- `X-Team-Id: <teamId>` (only when provided)
+- `X-Team-Id` only when Team ID is configured
 
 ## Local build
 

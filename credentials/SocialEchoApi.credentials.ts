@@ -18,7 +18,7 @@ export class SocialEchoApi implements ICredentialType {
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://api.socialecho.net',
-			description: 'Use https://api-dev.socialecho.net for dev environment',
+			description: 'Production API host (default). Change only if you use a custom endpoint.',
 			required: true,
 		},
 		{
@@ -47,7 +47,8 @@ export class SocialEchoApi implements ICredentialType {
 			name: 'teamId',
 			type: 'string',
 			default: '',
-			description: 'Optional. Set if your API key can access multiple teams',
+			description:
+				'Optional. If set, sent as X-Team-Id. Leave empty to use the team implied by the API key.',
 		},
 	];
 
@@ -57,7 +58,6 @@ export class SocialEchoApi implements ICredentialType {
 			headers: {
 				Authorization: '=Bearer {{$credentials.apiKey}}',
 				'X-Lang': '={{$credentials.lang}}',
-				'X-Team-Id': '={{$credentials.teamId}}',
 			},
 		},
 	};
@@ -67,6 +67,8 @@ export class SocialEchoApi implements ICredentialType {
 			baseURL: '={{$credentials.baseUrl}}',
 			url: '/v1/team',
 			method: 'GET' as const,
+			body: {},
+			json: true,
 		},
 	};
 }

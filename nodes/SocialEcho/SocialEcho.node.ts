@@ -6,16 +6,17 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { normalizeAccountIds, socialEchoApiRequest } from './GenericFunctions';
+import { parseCsvToIntArray, socialEchoApiRequest } from './GenericFunctions';
 
 export class SocialEcho implements INodeType {
-		description: INodeTypeDescription = {
+	description: INodeTypeDescription = {
 		displayName: 'SocialEcho',
 		name: 'socialEcho',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
-		description: 'Call SocialEcho external APIs for team/account/article/report data',
+		description:
+			'Call SocialEcho external APIs for team/account/article/report (GET with JSON body per current OpenAPI)',
 		defaults: {
 			name: 'SocialEcho',
 		},
@@ -37,25 +38,25 @@ export class SocialEcho implements INodeType {
 					{
 						name: 'Get Team',
 						value: 'getTeam',
-						description: 'Get current team information (/v1/team)',
+						description: 'Get current team information (GET /v1/team)',
 						action: 'Get team',
 					},
 					{
 						name: 'List Accounts',
 						value: 'listAccounts',
-						description: 'List social media accounts (/v1/account)',
+						description: 'List social media accounts (GET /v1/account)',
 						action: 'List accounts',
 					},
 					{
 						name: 'List Articles',
 						value: 'listArticles',
-						description: 'List post/article data (/v1/article)',
+						description: 'List post/article data (GET /v1/article)',
 						action: 'List articles',
 					},
 					{
 						name: 'Get Report',
 						value: 'getReport',
-						description: 'Get report data by date range (/v1/report)',
+						description: 'Get report data by date range (GET /v1/report)',
 						action: 'Get report',
 					},
 				],
@@ -78,7 +79,7 @@ export class SocialEcho implements INodeType {
 				name: 'type',
 				type: 'number',
 				default: 1,
-				description: 'Account type filter passed to /v1/account',
+				description: 'Account type: 1 = authorized account, 2 = competitor',
 				displayOptions: {
 					show: {
 						operation: ['listAccounts'],
@@ -91,7 +92,7 @@ export class SocialEcho implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: '163956,163955,28',
-				description: 'Optional comma-separated account IDs',
+				description: 'Optional comma-separated account IDs (sent as integer array in JSON body)',
 				displayOptions: {
 					show: {
 						operation: ['listArticles', 'getReport'],
@@ -131,7 +132,7 @@ export class SocialEcho implements INodeType {
 				name: 'timeType',
 				type: 'number',
 				default: 1,
-				description: 'Report time granularity type',
+				description: '1 = new posts in range, 2 = all historical posts in range',
 				displayOptions: {
 					show: {
 						operation: ['getReport'],
@@ -143,7 +144,7 @@ export class SocialEcho implements INodeType {
 				name: 'group',
 				type: 'string',
 				default: '',
-				description: 'Optional report group',
+				description: 'Optional: empty for totals, or day / app / account',
 				displayOptions: {
 					show: {
 						operation: ['getReport'],
@@ -159,42 +160,48 @@ export class SocialEcho implements INodeType {
 
 		for (let i = 0; i < items.length; i += 1) {
 			const operation = this.getNodeParameter('operation', i) as string;
-			const query: IDataObject = {};
 			let path = '/v1/team';
+			let body: IDataObject = {};
+
+			if (operation === 'getTeam') {
+				path = '/v1/team';
+				body = {};
+			}
 
 			if (operation === 'listAccounts') {
 				path = '/v1/account';
-				query.page = this.getNodeParameter('page', i) as number;
-				query.type = this.getNodeParameter('type', i) as number;
+				body = {
+					page: this.getNodeParameter('page', i) as number,
+					type: this.getNodeParameter('type', i) as number,
+				};
 			}
 
 			if (operation === 'listArticles') {
 				path = '/v1/article';
-				query.page = this.getNodeParameter('page', i) as number;
-				const accountIds = normalizeAccountIds(
-					(this.getNodeParameter('accountIds', i, '') as string) || '',
-				);
-				if (accountIds) {
-					query.account_ids = accountIds;
+				body = {
+					page: this.getNodeParameter('page', i) as number,
+				};
+				const ids = parseCsvToIntArray((this.getNodeParameter('accountIds', i, '') as string) || '');
+				if (ids.length > 0) {
+					body.account_ids = ids;
 				}
 			}
 
 			if (operation === 'getReport') {
 				path = '/v1/report';
-				query.start_date = this.getNodeParameter('startDate', i) as string;
-				query.end_date = this.getNodeParameter('endDate', i) as string;
-				query.time_type = this.getNodeParameter('timeType', i) as number;
-				query.group = this.getNodeParameter('group', i, '') as string;
-
-				const accountIds = normalizeAccountIds(
-					(this.getNodeParameter('accountIds', i, '') as string) || '',
-				);
-				if (accountIds) {
-					query.account_ids = accountIds;
+				body = {
+					start_date: this.getNodeParameter('startDate', i) as string,
+					end_date: this.getNodeParameter('endDate', i) as string,
+					time_type: this.getNodeParameter('timeType', i) as number,
+					group: this.getNodeParameter('group', i, '') as string,
+				};
+				const ids = parseCsvToIntArray((this.getNodeParameter('accountIds', i, '') as string) || '');
+				if (ids.length > 0) {
+					body.account_ids = ids;
 				}
 			}
 
-			const data = await socialEchoApiRequest.call(this, path, query);
+			const data = await socialEchoApiRequest.call(this, path, body);
 			returnData.push({
 				json: data,
 				pairedItem: { item: i },
