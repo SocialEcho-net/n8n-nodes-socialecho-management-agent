@@ -33,6 +33,17 @@ Headers sent by this node:
 - `X-Lang: <lang>`
 - `X-Team-Id` only when Team ID is configured
 
+## Platform publish limits (reference)
+
+When you build workflows that call SocialEcho **publish** APIs (outside this node’s query/report scope), use the bundled reference docs for per-network copy length, media counts, formats, and sizes:
+
+| File | Language |
+| --- | --- |
+| `platform-publish-limits_cn.md` | Chinese |
+| `platform-publish-limits_en.md` | English |
+
+These files are kept in sync with the [social-media-autopilot](https://github.com/SocialEcho-net/social-media-autopilot) skill repository.
+
 ## Local build
 
 ```bash

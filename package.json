@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-socialecho-management-agent",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "n8n community node for SocialEcho external APIs (team/account/article/report). Uses GET with JSON body per OpenAPI; accepts business code 0 or 200.",
   "license": "MIT",
   "homepage": "https://github.com/SocialEcho-net/n8n-nodes-socialecho-management-agent",
@@ -21,7 +21,9 @@
     "social-media"
   ],
   "files": [
-    "dist"
+    "dist",
+    "platform-publish-limits_cn.md",
+    "platform-publish-limits_en.md"
   ],
   "main": "dist/nodes/SocialEcho/SocialEcho.node.js",
   "types": "dist/nodes/SocialEcho/SocialEcho.node.d.ts",
