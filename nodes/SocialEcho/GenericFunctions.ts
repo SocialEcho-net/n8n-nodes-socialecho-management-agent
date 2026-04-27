@@ -1,5 +1,5 @@
-import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import type { IDataObject, IExecuteFunctions, JsonObject } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 /** CSV -> integer IDs for JSON body (OpenAPI: array of integers). */
 export function parseCsvToIntArray(raw: string): number[] {
@@ -61,9 +61,10 @@ export async function socialEchoApiRequest(
 		if (error instanceof NodeOperationError) {
 			throw error;
 		}
-		const message = error instanceof Error ? error.message : String(error);
-		throw new NodeOperationError(this.getNode(), 'SocialEcho API request failed.', {
-			description: message,
-		});
+		const apiErrorPayload =
+			error && typeof error === 'object'
+				? (error as JsonObject)
+				: ({ message: String(error) } as JsonObject);
+		throw new NodeApiError(this.getNode(), apiErrorPayload);
 	}
 }
